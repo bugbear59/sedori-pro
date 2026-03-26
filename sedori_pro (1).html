@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>せどりサーチPro</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@700;800&family=Noto+Sans+JP:wght@300;400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #080c12;
+    --s1:       #0d1520;
+    --s2:       #111d2e;
+    --border:   #1e2d42;
+    --text:     #e8edf5;
+    --muted:    #4a6080;
+    --accent:   #38bdf8;
+    --accent-d: #0284c7;
+    --green:    #34d399;
+    --green-d:  #059669;
+    --red:      #f87171;
+    --red-d:    #dc2626;
+    --mercari:  #ff4757;
+    --amazon:   #ff9900;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 20px 20px 16px;
+    background: var(--s1);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    animation: fadeDown 0.4s ease both;
+  }
+
+  .header-logo {
+    font-family: 'Kaisei Tokumin', serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .header-logo span { color: var(--accent); }
+
+  .header-badge {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 7px;
+    border-radius: 3px;
+    opacity: 0.7;
+  }
+
+  /* ── Container ── */
+  .container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .card:nth-child(2) { animation-delay: 0.05s; }
+  .card:nth-child(3) { animation-delay: 0.1s; }
+  .card:nth-child(4) { animation-delay: 0.15s; }
+
+  .card-title {
+    padding: 12px 16px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── Fields ── */
+  .fields {
+    padding: 10px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field {
+    position: relative;
+  }
+
+  .field-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 40px 13px 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .field input[type="number"] {
+    font-family: 'DM Mono', monospace;
+    font-size: 17px;
+    -moz-appearance: textfield;
+  }
+
+  .field input[type="number"]::-webkit-outer-spin-button,
+  .field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .field input::placeholder { color: var(--muted); font-size: 14px; }
+
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+  }
+
+  .field-suffix {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  /* ── Fee chips ── */
+  .fee-wrap {
+    padding: 0 14px 14px;
+  }
+
+  .fee-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 5px 10px;
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+  }
+
+  .chip:active { transform: scale(0.95); }
+
+  .chip.active {
+    background: rgba(56,189,248,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── Calc button ── */
+  .btn-calc {
+    display: block;
+    width: calc(100% - 28px);
+    margin: 0 14px 14px;
+    padding: 15px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-calc:active { transform: scale(0.98); opacity: 0.9; }
+
+  /* ── Result card ── */
+  .result-card {
+    display: none;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: popIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .result-card.show { display: block; }
+
+  .result-top {
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .result-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .result-label.pos { color: var(--green); }
+  .result-label.neg { color: var(--red); }
+
+  .result-amount {
+    font-family: 'Kaisei Tokumin', serif;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .result-amount.pos { color: var(--green); }
+  .result-amount.neg { color: var(--red); }
+
+  .result-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .result-badge.pos { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+  .result-badge.neg { background: rgba(248,113,113,0.12); color: var(--red);   border: 1px solid rgba(248,113,113,0.3); }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .result-cell {
+    padding: 14px 18px;
+    border-right: 1px solid var(--border);
+  }
+
+  .result-cell:last-child { border-right: none; }
+
+  .rc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .rc-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* ── Search buttons ── */
+  .search-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 14px 14px;
+  }
+
+  .btn-search {
+    padding: 14px 10px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-search:active { transform: scale(0.97); }
+
+  .btn-mercari {
+    background: rgba(255,71,87,0.1);
+    border: 1px solid rgba(255,71,87,0.3);
+    color: var(--mercari);
+  }
+
+  .btn-amazon {
+    background: rgba(255,153,0,0.1);
+    border: 1px solid rgba(255,153,0,0.3);
+    color: var(--amazon);
+  }
+
+  .btn-search .btn-icon { font-size: 20px; }
+
+  /* Error toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1e293b;
+    border: 1px solid var(--red);
+    color: var(--red);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    z-index: 99;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-logo">せどり<span>サーチ</span></span>
+  <span class="header-badge">PRO</span>
+</div>
+
+<div class="container">
+
+  <!-- Input card -->
+  <div class="card">
+    <div class="card-title">商品情報</div>
+    <div class="fields">
+      <div class="field">
+        <div class="field-label">商品名</div>
+        <input id="keyword" type="text" placeholder="例：AirPods Pro 第2世代" />
+      </div>
+      <div class="field">
+        <div class="field-label">仕入れ価格</div>
+        <input id="cost" type="number" placeholder="10000" min="0" />
+        <span class="field-suffix">円</span>
+      </div>
+      <div class="field">
+        <div class="field-label">販売価格</div>
+        <input id="price" type="number" placeholder="15000" min="0" />
+        <span class="field-suffix">円</span>
+      </div>
+    </div>
+
+    <div class="fee-wrap">
+      <div class="fee-label">手数料</div>
+      <div class="chips">
+        <span class="chip active" data-rate="0.10"   onclick="setFee(this)">メルカリ 10%</span>
+        <span class="chip"        data-rate="0.10"   onclick="setFee(this)">ラクマ 10%</span>
+        <span class="chip"        data-rate="0.0874" onclick="setFee(this)">ヤフオク 8.74%</span>
+        <span class="chip"        data-rate="0.08"   onclick="setFee(this)">Amazon 8%</span>
+        <span class="chip"        data-rate="0.05"   onclick="setFee(this)">PayPayF 5%</span>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calc()">⚡ 利益を計算する</button>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="result">
+    <div class="result-top">
+      <div>
+        <div class="result-label" id="rLabel">利益</div>
+        <div class="result-amount" id="rAmount">—</div>
+      </div>
+      <div class="result-badge" id="rBadge">—</div>
+    </div>
+    <div class="result-grid">
+      <div class="result-cell">
+        <div class="rc-label">手数料</div>
+        <div class="rc-val" id="rFee">—</div>
+      </div>
+      <div class="result-cell">
+        <div class="rc-label">利益率</div>
+        <div class="rc-val" id="rRate">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search card -->
+  <div class="card">
+    <div class="card-title">相場を調べる</div>
+    <div class="fields" style="padding-bottom:0">
+    </div>
+    <div class="search-grid">
+      <button class="btn-search btn-mercari" onclick="searchMercari()">
+        <span class="btn-icon">🛍</span>
+        メルカリで検索
+      </button>
+      <button class="btn-search btn-amazon" onclick="searchAmazon()">
+        <span class="btn-icon">📦</span>
+        Amazonで検索
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let feeRate = 0.10;
+
+  function setFee(el) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    feeRate = parseFloat(el.dataset.rate);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function fmt(n) {
+    return Math.round(n).toLocaleString('ja-JP') + '円';
+  }
+
+  function calc() {
+    const cost  = parseFloat(document.getElementById("cost").value);
+    const price = parseFloat(document.getElementById("price").value);
+    const el    = document.getElementById("result");
+
+    if (!cost || !price || cost < 0 || price <= 0) {
+      showToast('仕入れ価格と販売価格を入力してください');
+      return;
+    }
+
+    const fee    = price * feeRate;
+    const profit = price - cost - fee;
+    const rate   = ((profit / price) * 100).toFixed(1);
+    const isPos  = profit >= 0;
+    const cls    = isPos ? 'pos' : 'neg';
+
+    document.getElementById("rLabel").textContent  = isPos ? '利益' : '損失';
+    document.getElementById("rLabel").className    = 'result-label ' + cls;
+    document.getElementById("rAmount").textContent = (isPos ? '+' : '') + fmt(profit);
+    document.getElementById("rAmount").className   = 'result-amount ' + cls;
+    document.getElementById("rBadge").textContent  = isPos ? '✓ 黒字' : '✗ 赤字';
+    document.getElementById("rBadge").className    = 'result-badge ' + cls;
+    document.getElementById("rFee").textContent    = fmt(fee);
+    document.getElementById("rRate").textContent   = rate + '%';
+
+    // re-trigger animation
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+  }
+
+  function searchMercari() {
+    const kw = document.getElementById("keyword").value.trim();
+    if (!kw) { showToast('商品名を入力してください'); return; }
+    window.open(`https://www.mercari.com/jp/search/?keyword=${encodeURIComponent(kw)}`, '_blank');
+  }
+
+  function searchAmazon() {
+    const kw = document.getElementById("keyword").value.trim();
+    if (!kw) { showToast('商品名を入力してください'); return; }
+    window.open(`https://www.amazon.co.jp/s?k=${encodeURIComponent(kw)}`, '_blank');
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') calc(); });
+</script>
+</body>
+</html>
