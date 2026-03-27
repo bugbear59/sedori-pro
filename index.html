@@ -404,6 +404,11 @@
         <input id="price" type="number" placeholder="15000" min="0" />
         <span class="field-suffix">円</span>
       </div>
+      <div class="field">
+        <div class="field-label">送料 <span style="font-size:9px;opacity:0.5;font-weight:400;">（任意）</span></div>
+        <input id="shipping" type="number" placeholder="0" min="0" />
+        <span class="field-suffix">円</span>
+      </div>
     </div>
 
     <div class="fee-wrap">
@@ -435,8 +440,16 @@
         <div class="rc-val" id="rFee">—</div>
       </div>
       <div class="result-cell">
+        <div class="rc-label">送料</div>
+        <div class="rc-val" id="rShipping">—</div>
+      </div>
+      <div class="result-cell" style="border-top:1px solid var(--border);">
         <div class="rc-label">利益率</div>
         <div class="rc-val" id="rRate">—</div>
+      </div>
+      <div class="result-cell" style="border-top:1px solid var(--border);">
+        <div class="rc-label">仕入れ価格</div>
+        <div class="rc-val" id="rCost">—</div>
       </div>
     </div>
   </div>
@@ -444,9 +457,7 @@
   <!-- Search card -->
   <div class="card">
     <div class="card-title">相場を調べる</div>
-    <div class="fields" style="padding-bottom:0">
-    </div>
-    <div class="search-grid">
+    <div class="search-grid" style="padding-top:10px;">
       <button class="btn-search btn-mercari" onclick="searchMercari()">
         <span class="btn-icon">🛍</span>
         メルカリで検索
@@ -484,9 +495,10 @@
   }
 
   function calc() {
-    const cost  = parseFloat(document.getElementById("cost").value);
-    const price = parseFloat(document.getElementById("price").value);
-    const el    = document.getElementById("result");
+    const cost     = parseFloat(document.getElementById("cost").value);
+    const price    = parseFloat(document.getElementById("price").value);
+    const shipping = parseFloat(document.getElementById("shipping").value) || 0;
+    const el       = document.getElementById("result");
 
     if (!cost || !price || cost < 0 || price <= 0) {
       showToast('仕入れ価格と販売価格を入力してください');
@@ -494,19 +506,21 @@
     }
 
     const fee    = price * feeRate;
-    const profit = price - cost - fee;
+    const profit = price - cost - fee - shipping;
     const rate   = ((profit / price) * 100).toFixed(1);
     const isPos  = profit >= 0;
     const cls    = isPos ? 'pos' : 'neg';
 
-    document.getElementById("rLabel").textContent  = isPos ? '利益' : '損失';
-    document.getElementById("rLabel").className    = 'result-label ' + cls;
-    document.getElementById("rAmount").textContent = (isPos ? '+' : '') + fmt(profit);
-    document.getElementById("rAmount").className   = 'result-amount ' + cls;
-    document.getElementById("rBadge").textContent  = isPos ? '✓ 黒字' : '✗ 赤字';
-    document.getElementById("rBadge").className    = 'result-badge ' + cls;
-    document.getElementById("rFee").textContent    = fmt(fee);
-    document.getElementById("rRate").textContent   = rate + '%';
+    document.getElementById("rLabel").textContent    = isPos ? '利益' : '損失';
+    document.getElementById("rLabel").className      = 'result-label ' + cls;
+    document.getElementById("rAmount").textContent   = (isPos ? '+' : '') + fmt(profit);
+    document.getElementById("rAmount").className     = 'result-amount ' + cls;
+    document.getElementById("rBadge").textContent    = isPos ? '✓ 黒字' : '✗ 赤字';
+    document.getElementById("rBadge").className      = 'result-badge ' + cls;
+    document.getElementById("rFee").textContent      = fmt(fee);
+    document.getElementById("rShipping").textContent = fmt(shipping);
+    document.getElementById("rRate").textContent     = rate + '%';
+    document.getElementById("rCost").textContent     = fmt(cost);
 
     // re-trigger animation
     el.classList.remove('show');
